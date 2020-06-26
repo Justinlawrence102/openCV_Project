@@ -2,12 +2,13 @@
 #make sure you are in enviernemnt:
 #workon cv
 import tkinter as tk
+from tkinter import ttk
 import imutils  #convience functions
 import argparse
 counter = 0
 
 window = tk.Tk()
-greeting = tk.Label(
+greeting = ttk.Label(
     text = "Hello World",
     foreground = "red", #text color
     background = "gray" #background color
@@ -17,13 +18,7 @@ entry = tk.Entry(fg="yellow", bg="gray", width=50)
 entry.insert(0, "Python")
 entry.pack()
 
-button = tk.Button(
-    text="Click me!",
-    width=25,
-    height=5,
-    bg="blue",
-    fg="yellow",
-)
+button = tk.Label(window, text = 'Submit', fg='green', bg='red', width=30, height=6)
 button.pack()
 def handle_click(event):
     entryVal = entry.get()

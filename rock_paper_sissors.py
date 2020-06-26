@@ -14,6 +14,7 @@ args = vars(ap.parse_args())
 vs = VideoStream(src=0).start() #used for multithreading
 
 app = Rock_Paper_Sissors_App(vs)
+app.window.title('Rock Paper Scissors')
 app.window.mainloop()
 
 
