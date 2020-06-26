@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 import cv2      # embed OpenCV 4
 
-def getFingerCount(image):
+def getFingerCount(image, showImage):
     kernel = np.ones((3,3), np.uint8)
     #load image
     image = imutils.resize(image, height=600)
@@ -74,8 +74,9 @@ def getFingerCount(image):
 
     #draw on the the shape to put these coordinates!
         cv2.drawContours(image, [approx], -1, (0, 255, 255), 2)
-        cv2.imshow("image", image)
-        key = cv2.waitKey(1) & 0xFF
-        #cv2.waitKey(0)
+        if showImage:
+            cv2.imshow("image", image)
+            key = cv2.waitKey(1) & 0xFF
+            #cv2.waitKey(0)
 
 

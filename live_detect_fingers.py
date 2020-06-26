@@ -4,33 +4,57 @@
 from imutils.video import WebcamVideoStream
 from imutils.video import FPS
 from getHand import getFingerCount
+from PIL import Image
+from PIL import ImageTk
 
+import tkinter as tk #used for GUI
+import threading
 import imutils  #convience functions
 import argparse
 import cv2      # embed OpenCV 4
 
+class Rock_Paper_Sissors_App:
 
-ap = argparse.ArgumentParser()
-ap.add_argument("-n", "--num-frames", type=int, default=100, help="num frames for test")
-ap.add_argument("-d", "--display", type=int, default=-1, help="should frames be displayed?")
-args = vars(ap.parse_args())
+	def __init__(self, vs):
+		self.vs = vs
+		self.thread = None
+		self.window = tk.Tk()
 
-vs = WebcamVideoStream(src=0).start()   #used for multithreading
-fps = FPS().start()
+		#init window
+		startButton = tk.Button(text="Start", width=25, height=5, fg="green")
+		startButton.bind("<Button-1>", self.did_press_start)
+		startButton.pack()
+
+		image = Image.open('ball.png')
+		image = image.resize((600, 600))
+		image = ImageTk.PhotoImage(image)
+
+		self.imageView = tk.Label(image=image)
+		self.imageView.image = image
+		self.imageView.pack(side="left", padx=10, pady=10)
+
+		#prepare threading
+		self.thread = threading.Thread(target=self.getVideo, args=())
+		self.thread.start()
 
 
-while fps._numFrames < args["num_frames"]:
-    frame = vs.read()                   #usef for multithreading
-    image = imutils.resize(frame, height=600)
-    #defines the region of interest
-    roi = image[100:420, 100:420]
-    cv2.rectangle(image,(100,100),(420,420),(0,255,0),0)   
-    getFingerCount(image)
-    fps.update()
+	def getVideo(self):
+		while(True):
+			frame = self.vs.read()
+			frame = imutils.resize(frame, height = 300)	#600
+			cv2.rectangle(frame,(50,50),(210,210),(0,255,0),0)	#(100,100),(420,420)
 
-fps.stop()
-vs.stop()                #used for multithreading
-cv2.destroyAllWindows()
+			image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+			image = Image.fromarray(image)
+			image = ImageTk.PhotoImage(image)
+			self.imageView.configure(image=image)
+			self.imageView.image = image
 
+	def did_press_start(self, event):
+		counter = 0
+		while counter < 100:
+			frame = self.vs.read()
+			getFingerCount(frame, False)
+			counter += 1
 
 
