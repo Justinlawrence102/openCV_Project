@@ -66,11 +66,14 @@ def getFingerCount(image, showImage):
 
         #print("This many points: "+str(numPnts))
         if numPnts == 0 or numPnts == 1:
-            print("ROCK")
+            #print("ROCK")
+            return(1)
         elif numPnts == 2:
-            print("SISSORS")
+            #print("SISSORS")
+            return(3)
         elif numPnts == 3 or numPnts == 4 or numPnts == 5 or numPnts ==6: 
-            print("PAPER")
+            #print("PAPER")
+            return(2)
 
     #draw on the the shape to put these coordinates!
         cv2.drawContours(image, [approx], -1, (0, 255, 255), 2)
