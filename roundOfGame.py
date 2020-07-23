@@ -11,17 +11,19 @@ import cv2      # embed OpenCV 4
 from enum import Enum
 import random
 from collections import Counter
-
+import time
 #import Tkinter as tk     # python 2
 #import tkFont as tkfont  # python 2
 
 class gameView(tk.Frame):
-    
+    curRoundNumber = 1
+
     def __init__(self, parent, controller, vs, gameLength):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.vs = vs
         self.gameLength = gameLength
+
         compName = tk.StringVar()
         compRound1 = tk.StringVar()
         compRound2 = tk.StringVar()
@@ -86,15 +88,6 @@ class gameView(tk.Frame):
                 Label = tk.Label(scoreCardFrame, textvariable=rowInfo.scores[c])
                 Label.grid(row=r, column=c)
 
-        # game1Label = tk.Label(scoreCardFrame, text="Game 1")
-        # game2Label = tk.Label(scoreCardFrame, text="Game 2")
-        # game3Label = tk.Label(scoreCardFrame, text="Game 3")
-        # game1Label.grid(row=0, column=1)
-        # game2Label.grid(row=0, column=2)
-        # game3Label.grid(row=0, column=3)
-        # playerLabel.grid(row=1)
-        # computerLabel.grid(row=2)
-
         scoreCardFrame.pack()
 
         image = Image.open('ball.png')
@@ -116,20 +109,32 @@ class gameView(tk.Frame):
                            command=lambda: controller.show_frame("StartPage"))
         tempButton = tk.Button(self, text="add point for computer")
         def incrementComputer(event):
-             compRound2.set("1")
+             #compRound2.set("1")
+             comp.scores[2].set("1")
         tempButton.bind("<Button-1>", incrementComputer)
         tempButton.pack()
 
         button.pack()
-        # self.thread = threading.Thread(target=self.getVideo, args=())
-        # self.thread.start()
+        self.thread = threading.Thread(target=self.getVideo, args=())
+        self.thread.start()
 
-        def startRound(event):
-            showRock()
-            self.after(1000, showPaper)
-            self.after(2000, showScissors)
-            self.after(3000, showGo)
-            self.after(3100, detectHand)
+        def didTapStartButton(event):
+            beginRound()
+        goButton.bind("<Button-1>", didTapStartButton)
+
+        def beginRound():
+            if self.curRoundNumber > 3:
+                endGame()
+            else:
+                showRock()
+                self.after(1000, showPaper)
+                self.after(2000, showScissors)
+                self.after(3000, showGo)
+                self.after(3100, detectHand)
+
+        def endGame():
+            print("Game over!")
+
 
         def showRock():
             emojes["text"] = "✊"
@@ -139,8 +144,12 @@ class gameView(tk.Frame):
             emojes["text"] = "✌️"
         def showGo():
             emojes["text"] = "Go!"
+            print("SHOWING GOOOOOO!")
 
         def detectHand():
+            #global curRoundNumber
+            roundNumber = self.curRoundNumber
+            print("Running detect hand!!!!!!!")
             counter = 0
             usersAnswers = []
             while counter < 500:
@@ -149,6 +158,7 @@ class gameView(tk.Frame):
                 print(tempUserAnswer)
                 usersAnswers.append(tempUserAnswer)
                 counter += 1
+
             #sort list by most common
             result = [item for items, c in Counter(usersAnswers).most_common() 
                                       for item in [items] * c] 
@@ -156,6 +166,19 @@ class gameView(tk.Frame):
             computerAnser = pickRandom()
             print("User says " + str(usersAnswer))
             print("Computer says " + str(computerAnser))
+
+            if usersAnswer != computerAnser:
+                findWinner(computerAnser, usersAnswer, roundNumber)
+                roundNumber += 1
+            else:
+                print("Tie...try again!")
+            self.curRoundNumber = roundNumber
+
+            # time.sleep(3)
+            # if roundNumber == 4:
+            #     endGame()
+            # else:
+            #     beginRound()
 
         def pickRandom():
             compAnswer = random.randint(1,3)
@@ -169,7 +192,29 @@ class gameView(tk.Frame):
                 showScissors()
                 return(3)
 
-        goButton.bind("<Button-1>", startRound)
+        def findWinner(compAnswer, userAnswer, roundNum):
+            print("Updating section " + str(roundNum))
+            if compAnswer == 1:
+                if userAnswer == 2:
+                    print("Player wins!")
+                    player.scores[roundNum].set("1")
+                else:
+                    print("Computer wins!")
+                    comp.scores[roundNum].set("1")
+            if compAnswer == 2:
+                if userAnswer == 3:
+                    print("Player wins!")
+                    player.scores[roundNum].set("1")
+                else:
+                    print("Computer wins!")
+                    comp.scores[roundNum].set("1")
+            if compAnswer == 3:
+                if userAnswer == 1:
+                    print("Player wins!")
+                    player.scores[roundNum].set("1")
+                else:
+                    print("Computer wins!")
+                    comp.scores[roundNum].set("1")
         
     def getVideo(self):
         while(True):
